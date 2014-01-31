@@ -1,0 +1,12 @@
+[submodule "cmake"]
+	path = cmake
+	url = git@github.com:funkey/cmake
+[submodule "modules/util"]
+	path = modules/util
+	url = git@github.com:funkey/util
+[submodule "modules/pipeline"]
+	path = modules/pipeline
+	url = git@github.com:funkey/pipeline
+[submodule "modules/signals"]
+	path = modules/signals
+	url = git@github.com:funkey/signals
