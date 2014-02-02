@@ -231,6 +231,39 @@ GurobiBackend::setConstraints(const LinearConstraints& constraints) {
 	}
 }
 
+void
+GurobiBackend::addConstraint(const LinearConstraint& constraint) {
+
+	try {
+
+		LOG_DEBUG(gurobilog) << "adding a constraint" << std::endl;
+
+
+		// create the lhs expression
+		GRBLinExpr lhsExpr;
+
+		// set the coefficients
+		typedef std::pair<unsigned int, double> pair_type;
+		foreach (const pair_type& pair, constraint.getCoefficients())
+			lhsExpr += pair.second*_variables[pair.first];
+
+		// add to the model
+		_constraints.push_back(
+				_model.addConstr(
+					lhsExpr,
+					(constraint.getRelation() == LessEqual ? GRB_LESS_EQUAL :
+							(constraint.getRelation() == GreaterEqual ? GRB_GREATER_EQUAL :
+									GRB_EQUAL)),
+					constraint.getValue()));
+
+		_model.update();
+
+	} catch (GRBException e) {
+
+		LOG_ERROR(gurobilog) << "error: " << e.getMessage() << endl;
+	}
+}
+
 bool
 GurobiBackend::solve(Solution& x, double& value, std::string& msg) {
 

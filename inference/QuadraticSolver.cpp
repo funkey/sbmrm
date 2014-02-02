@@ -4,12 +4,20 @@
 
 static logger::LogChannel quadraticsolverlog("quadraticsolverlog", "[QuadraticSolver] ");
 
-QuadraticSolver::QuadraticSolver(const QuadraticSolverBackendFactory& factory) {
+QuadraticSolver::QuadraticSolver(const QuadraticSolverBackendFactory& factory) :
+		_constraintsAdded(0),
+		_needReset(true) {
 
 	registerInput(_objective, "objective");
 	registerInput(_linearConstraints, "linear constraints");
 	registerInput(_parameters, "parameters");
 	registerOutput(_solution, "solution");
+
+	_objective.registerBackwardCallback(&QuadraticSolver::onModified, this);
+	_linearConstraints.registerBackwardCallback(&QuadraticSolver::onModified, this);
+	_parameters.registerBackwardCallback(&QuadraticSolver::onModified, this);
+
+	_linearConstraints.registerBackwardCallback(&QuadraticSolver::onConstraintAdded, this);
 
 	_solver = factory.createQuadraticSolverBackend();
 }
@@ -25,24 +33,55 @@ QuadraticSolver::updateOutputs() {
 	updateQuadraticProgram();
 
 	solve();
+
+	_constraintsAdded = 0;
+	_needReset = false;
+}
+
+void
+QuadraticSolver::onConstraintAdded(const ConstraintAdded& /*signal*/) {
+
+	LOG_DEBUG(quadraticsolverlog) << "a single constraint was added" << std::endl;
+
+	_constraintsAdded++;
+}
+
+void
+QuadraticSolver::onModified(const pipeline::Modified& /*signal*/) {
+
+	LOG_DEBUG(quadraticsolverlog) << "an input changed entirely, reset QP on next update" << std::endl;
+
+	_needReset = true;
 }
 
 void
 QuadraticSolver::updateQuadraticProgram() {
 
-	if (_parameters)
-		_solver->initialize(
-				getNumVariables(),
-				_parameters->getDefaultVariableType(),
-				_parameters->getSpecialVariableTypes());
-	else
-		_solver->initialize(
-				getNumVariables(),
-				Continuous);
+	if (_needReset) {
 
-	_solver->setObjective(*_objective);
+		if (_parameters)
+			_solver->initialize(
+					getNumVariables(),
+					_parameters->getDefaultVariableType(),
+					_parameters->getSpecialVariableTypes());
+		else
+			_solver->initialize(
+					getNumVariables(),
+					Continuous);
 
-	_solver->setConstraints(*_linearConstraints);
+		_solver->setObjective(*_objective);
+
+		_solver->setConstraints(*_linearConstraints);
+
+	// only constraints got added
+	} else {
+
+		unsigned int numConstraints = _linearConstraints->size();
+
+		// add all the new constraints
+		for (unsigned int i = 0; i < _constraintsAdded; i++)
+			_solver->addConstraint((*_linearConstraints)[numConstraints - 1 - i]);
+	}
 }
 
 void

@@ -8,6 +8,8 @@
 #include <pipeline/Process.h>
 #include <inference/QuadraticSolver.h>
 
+#include "BundleCollector.h"
+
 /**
  * Implements a bundle method with a quadratic regularizer for arbitrary convex 
  * functions.
@@ -48,8 +50,6 @@ private:
 
 	void setupQp();
 
-	void addHyperplane(std::vector<double>& a, double b);
-
 	void findMinLowerBound(std::vector<double>& w, double& value);
 
 	inline double dot(std::vector<double>& a, std::vector<double>& b);
@@ -67,9 +67,9 @@ private:
 	double _eps;
 
 	pipeline::Value<QuadraticObjective>        _qpObjective;
-	pipeline::Value<LinearConstraints>         _qpConstraints;
 	pipeline::Value<QuadraticSolverParameters> _qpParameters;
 
+	pipeline::Process<BundleCollector> _bundleCollector;
 	pipeline::Process<QuadraticSolver> _qpSolver;
 
 	pipeline::Value<Solution> _qpSolution;

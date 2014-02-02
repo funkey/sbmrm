@@ -67,8 +67,10 @@ BundleMethod::optimize() {
 		// compute hyperplane offset
 		double b_t = L_w_tm1 - dot(w_tm1, a_t);
 
+		LOG_ALL(bundlelog) << "adding hyperplane " << a_t << "*w + " << b_t << std::endl;
+
 		// update lower bound
-		addHyperplane(a_t, b_t);
+		_bundleCollector->addHyperplane(a_t, b_t);
 
 		// minimal value of lower bound
 		double minLower;
@@ -125,37 +127,13 @@ BundleMethod::setupQp() {
 
 	// connect pipeline
 	_qpSolver->setInput("objective", _qpObjective);
-	_qpSolver->setInput("linear constraints", _qpConstraints);
+	_qpSolver->setInput("linear constraints", _bundleCollector->getOutput());
 	_qpSolver->setInput("parameters", _qpParameters);
 	_qpSolution = _qpSolver->getOutput("solution");
 }
 
 void
-BundleMethod::addHyperplane(std::vector<double>& a, double b) {
-	/*
-	  <w,a> + b ≤  ξ
-	        <=>
-	  <w,a> - ξ ≤ -b
-	*/
-
-	LOG_ALL(bundlelog) << "adding hyperplane " << a << "*w + " << b << std::endl;
-
-	LinearConstraint constraint;
-
-	for (unsigned int i = 0; i < _dims; i++)
-		constraint.setCoefficient(i, a[i]);
-	constraint.setCoefficient(_dims, -1.0);
-	constraint.setRelation(LessEqual);
-	constraint.setValue(-b);
-
-	_qpConstraints->add(constraint);
-}
-
-void
 BundleMethod::findMinLowerBound(std::vector<double>& w, double& value) {
-
-	// let the solver know that the constraints changed
-	_qpSolver->setInput("linear constraints", _qpConstraints);
 
 	// read the solution (pipeline magic!)
 	for (unsigned int i = 0; i < _dims; i++)

@@ -12,6 +12,7 @@
 #include "QuadraticSolverBackendFactory.h"
 #include "QuadraticSolverParameters.h"
 #include "Solution.h"
+#include "Signals.h"
 
 /**
  * Abstract class for quadratic program solvers. Implementations are supposed to
@@ -49,6 +50,10 @@ private:
 
 	void updateOutputs();
 
+	void onModified(const pipeline::Modified& signal);
+
+	void onConstraintAdded(const ConstraintAdded& signal);
+
 	////////////////////
 	// solver backend //
 	////////////////////
@@ -60,6 +65,12 @@ private:
 	unsigned int getNumVariables();
 
 	QuadraticSolverBackend* _solver;
+
+	// number of constraints added since last update
+	unsigned int _constraintsAdded;
+
+	// some input changed in a way that the whole program has to be reset
+	bool _needReset;
 };
 
 #endif // QUADRATIC_SOLVER_H__
