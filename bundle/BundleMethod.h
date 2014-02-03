@@ -18,7 +18,7 @@ class BundleMethod {
 
 public:
 
-	typedef boost::function<void(std::vector<double> w, double& value, std::vector<double>& gradient)> callback_t;
+	typedef boost::function<void(const std::vector<double>& w, double& value, std::vector<double>& gradient)> callback_t;
 
 	/**
 	 * Create a new bundle method for the given value and gradient callback.

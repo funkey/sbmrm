@@ -90,7 +90,7 @@ public:
 	 *
 	 * @return The number of variables in this objective.
 	 */
-	unsigned int size() { return _coefs.size(); }
+	unsigned int size() const { return _coefs.size(); }
 
 private:
 
@@ -103,6 +103,8 @@ private:
 
 	std::map<std::pair<unsigned int, unsigned int>, double> _quadraticCoefs;
 };
+
+std::ostream& operator<<(std::ostream& out, const QuadraticObjective& objective);
 
 #endif // INFERENCE_QUADRATIC_OBJECTIVE_H__
 
