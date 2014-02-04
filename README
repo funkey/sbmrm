@@ -1,0 +1,94 @@
+Bundle Method for Risk Minimization with Structured Loss
+========================================================
+
+Overview
+--------
+
+  sbmrm determines the optimal weights that minimize a structured loss for the
+  following class of models:
+
+    E(x,y) = <w,φ(x)y>
+
+    x         observations
+    y         binary labels
+    φ(x)      features, one column per component of y
+    w         feature weights
+
+    y* = argmin E(x,y)
+
+  The learning consists of finding:
+
+    w* = argmin_w λ½|w|² + L(w)
+
+  where L(w) is the soft margin loss with a cost function Δ(y',y)
+
+    L(w) = max_{y:Ay≤b} <w,φ(x')y' - φ(x')y> + Δ(y',y)
+
+    y'        ground truth
+    Δ(y',y)   cost function for mislabeling
+    λ         regularizer weight
+    A,b Ay≤b  linear constraints on y
+
+  Currently, only the Hamming cost function is implemented for Δ(y',y).
+
+Compile
+-------
+
+  Get sbmrm:
+
+    $ git clone http://github.com/funkey/sbmrm
+
+  Get submodules:
+
+    $ git submodule update --init
+
+  Configure:
+
+    $ mkdir build
+    $ cd build
+    $ cmake ..
+
+    Set Gurobi_ROOT_DIR to the Gurobi subdirectory containing the /lib and
+    /bin directories.
+
+  Compile:
+
+    $ make
+
+Usage
+-----
+
+  By default, sbmrm expects three files:
+
+    labels.txt        the ground truth labeling y'
+    features.txt      φ(x'), one column per line
+    constraints.txt   linear constraints on y
+
+  Example:
+
+    labels.txt:
+
+      0 # one digit per component of y'
+      1 # comments are allowed
+      0
+      1
+
+    features.txt:
+
+      # one feature vectors per line
+
+      0.2 1 # for y_0
+      0.1 2 # for y_1
+      0.3 0 # ...
+      0.1 2
+
+    constraints.txt:
+
+      # format: [ceofficient*component]* [rel] [value]
+      # components of y starting counting at 0
+      # [rel] = <= | == | >=
+
+      1*0 1*1 1*2 1*3 >= 1 # at least on compnent of y has to be 1
+
+  Running ./sbmrm will find w*. See ./sbmrm --help for options like setting
+  the regularizer weight.
