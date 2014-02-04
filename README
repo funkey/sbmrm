@@ -1,5 +1,5 @@
-Bundle Method for Risk Minimization with Structured Loss
-========================================================
+Structured Bundle Method for Risk Minimization (sbmrm)
+======================================================
 
 Overview
 --------
@@ -14,7 +14,9 @@ Overview
     φ(x)      features, one column per component of y
     w         feature weights
 
-    y* = argmin E(x,y)
+  Given a set of weights w, the best solution is:
+
+    y* = argmin_y E(x,y)
 
   The learning consists of finding:
 
@@ -49,7 +51,8 @@ Compile
     $ cmake ..
 
     Set Gurobi_ROOT_DIR to the Gurobi subdirectory containing the /lib and
-    /bin directories.
+    /bin directories. Obtain Gurobi for free for academic purposes at
+    http://gurobi.com.
 
   Compile:
 
