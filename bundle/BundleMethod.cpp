@@ -56,13 +56,13 @@ BundleMethod::optimize() {
 		// get current value and gradient
 		_valueGradientCallback(w_tm1, L_w_tm1, a_t);
 
-		LOG_DEBUG(bundlelog) << "       L(w)   is: " << L_w_tm1 << std::endl;
-		LOG_ALL(bundlelog)   << "      ∂L(w)/∂ is: " << a_t << std::endl;
+		LOG_DEBUG(bundlelog) << "       L(w)              is: " << L_w_tm1 << std::endl;
+		LOG_ALL(bundlelog)   << "      ∂L(w)/∂            is: " << a_t << std::endl;
 
 		// update smallest observed value of regularized L
-		minValue = std::min(minValue, L_w_tm1 + 0.5*dot(w_tm1, w_tm1));
+		minValue = std::min(minValue, L_w_tm1 + _lambda*0.5*dot(w_tm1, w_tm1));
 
-		LOG_DEBUG(bundlelog) << " min_i L(w_i) is: " << minValue << std::endl;
+		LOG_DEBUG(bundlelog) << " min_i L(w_i) + ½λ|w_i|² is: " << minValue << std::endl;
 
 		// compute hyperplane offset
 		double b_t = L_w_tm1 - dot(w_tm1, a_t);
@@ -78,8 +78,8 @@ BundleMethod::optimize() {
 		// update w and get minimal value
 		findMinLowerBound(w, minLower);
 
-		LOG_DEBUG(bundlelog) << " min_w ℒ(w)   is: " << minLower << std::endl;
-		LOG_DEBUG(bundlelog) << " w* of ℒ(w)   is: "  << w << std::endl;
+		LOG_DEBUG(bundlelog) << " min_w ℒ(w)   + ½λ|w|²   is: " << minLower << std::endl;
+		LOG_DEBUG(bundlelog) << " w* of ℒ(w)   + ½λ|w|²   is: "  << w << std::endl;
 
 		// compute gap
 		double eps_t = minValue - minLower;
