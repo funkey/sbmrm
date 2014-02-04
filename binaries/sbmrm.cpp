@@ -33,16 +33,15 @@ util::ProgramOption optionConstraintsFile(
 		util::_description_text = "File containing the constraints on the labels.",
 		util::_default_value    = "constraints.txt");
 
-void quadraticTest(const std::vector<double>& x, double& y, std::vector<double>& gradient) {
+util::ProgramOption optionRegularizerWeight(
+		util::_long_name        = "regularizerWeight",
+		util::_description_text = "The regularizer influence on the learning objective.",
+		util::_default_value    = 1.0);
 
-	LOG_USER(out) << "computing L(w) at " << x[0] << std::endl;
-
-	y = 10*x[0] + x[0]*x[0];
-	gradient[0] = 10 + 2*x[0];
-
-	LOG_USER(out) << "y = " << y << std::endl;
-	LOG_USER(out) << "∂y/∂x = " << gradient[0] << std::endl;
-}
+util::ProgramOption optionOptimizerGap(
+		util::_long_name        = "optimizerGap",
+		util::_description_text = "The optimality criterion for stopping the bundle method.",
+		util::_default_value    = 1e-5);
 
 int main(int optionc, char** optionv) {
 
@@ -65,25 +64,15 @@ int main(int optionc, char** optionv) {
 		pipeline::Process<GroundTruthReader> groundTruthReader(optionLabelsFile.as<std::string>());
 
 		// get them read
-		pipeline::Value<LinearConstraints> constraints = constraintsReader->getOutput();
-		LinearConstraints c = *constraints;
-
-		pipeline::Value<Features> features = featuresReader->getOutput();
-		LOG_DEBUG(out) << "[main] read " << features->numFeatureVectors() << " feature vectors of size " << features->numFeatures() << std::endl;
-
-		for (unsigned int i = 0; i < features->numFeatureVectors(); i++)
-			LOG_DEBUG(out) << "[main] \t" << features->getFeatureVector(i) << std::endl;
-
+		pipeline::Value<LinearConstraints>    constraints = constraintsReader->getOutput();
+		pipeline::Value<Features>             features    = featuresReader->getOutput();
 		pipeline::Value<std::vector<double> > groundTruth = groundTruthReader->getOutput();
-		LOG_DEBUG(out) << "[main] ground truth labeling is: " << *groundTruth << std::endl;
 
 		HammingCostFunction costs(*groundTruth);
+		SoftMarginLoss      loss(costs, constraints, features, groundTruth);
 
-		SoftMarginLoss loss(costs, constraints, features, groundTruth);
-
-		//BundleMethod bundleMethod(quadraticTest, 1, 1.0, 0.0001);
 		BundleMethod::callback_t callback = boost::bind(&SoftMarginLoss::valueAndGradient, &loss, _1, _2, _3);
-		BundleMethod bundleMethod(callback, features->numFeatures(), 1.0, 0.0001);
+		BundleMethod bundleMethod(callback, features->numFeatures(), optionRegularizerWeight, optionOptimizerGap);
 
 		std::vector<double> w = bundleMethod.optimize();
 
