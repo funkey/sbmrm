@@ -64,7 +64,7 @@ Usage
   By default, sbmrm expects three files:
 
     labels.txt        the ground truth labeling y'
-    features.txt      φ(x'), one column per line
+    features.txt      φ(x)', one column per line
     constraints.txt   linear constraints on y
 
   Example:

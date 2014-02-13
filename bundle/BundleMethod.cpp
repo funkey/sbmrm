@@ -96,6 +96,7 @@ BundleMethod::optimize() {
 			} else {
 
 				LOG_ERROR(bundlelog) << "ε < 0 -- something went wrong" << std::endl;
+				LOG_ERROR(bundlelog) << "(if |ε| is very small this might still be fine)" << std::endl;
 			}
 
 			break;
