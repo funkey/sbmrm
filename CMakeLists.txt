@@ -24,6 +24,9 @@ configure_file(
 
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall -Wextra -fomit-frame-pointer -fPIC")
 set(CMAKE_CXX_FLAGS_DEBUG   "-g -Wall -Wextra -fPIC")
+if (NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Release or Debug" FORCE)
+endif()
 
 #######################
 # project directories #
