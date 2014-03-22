@@ -3,6 +3,7 @@
  */
 
 #include <iostream>
+#include <fstream>
 #include <pipeline/Process.h>
 #include <pipeline/Value.h>
 #include <util/ProgramOptions.h>
@@ -32,6 +33,11 @@ util::ProgramOption optionConstraintsFile(
 		util::_long_name        = "constraintsFile",
 		util::_description_text = "File containing the constraints on the labels.",
 		util::_default_value    = "constraints.txt");
+
+util::ProgramOption optionWeightsOutFile(
+		util::_long_name	= "weightsOutputFile",
+		util::_description_text = "File the computet optimal weights are written to.",
+		util::_default_value	= "weights.txt");
 
 util::ProgramOption optionRegularizerWeight(
 		util::_long_name        = "regularizerWeight",
@@ -77,6 +83,12 @@ int main(int optionc, char** optionv) {
 		std::vector<double> w = bundleMethod.optimize();
 
 		LOG_USER(out) << "[main] optimial w is " << w << std::endl;
+
+		// write output
+		std::ofstream wOutput;
+		wOutput.open(optionWeightsOutFile.as<std::string>().c_str());
+		wOutput << w << std::endl;
+		wOutput.close();
 
 	} catch (Exception& e) {
 
