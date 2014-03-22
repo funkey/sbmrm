@@ -12,6 +12,7 @@
 
 #include <bundle/BundleMethod.h>
 #include <loss/HammingCostFunction.h>
+#include <loss/FileLinearCostFunction.h>
 #include <loss/SoftMarginLoss.h>
 #include <loss/io/FeaturesReader.h>
 #include <loss/io/GroundTruthReader.h>
@@ -38,6 +39,10 @@ util::ProgramOption optionWeightsOutFile(
 		util::_long_name	= "weightsOutputFile",
 		util::_description_text = "File the computet optimal weights are written to.",
 		util::_default_value	= "weights.txt");
+
+util::ProgramOption optionLinearCostsFile(
+		util::_long_name        = "linearCostsFile",
+		util::_description_text = "File with the values for a linear cost function. If not set, Hamming costs are used.");
 
 util::ProgramOption optionRegularizerWeight(
 		util::_long_name        = "regularizerWeight",
@@ -74,8 +79,14 @@ int main(int optionc, char** optionv) {
 		pipeline::Value<Features>             features    = featuresReader->getOutput();
 		pipeline::Value<std::vector<double> > groundTruth = groundTruthReader->getOutput();
 
-		HammingCostFunction costs(*groundTruth);
-		SoftMarginLoss      loss(costs, constraints, features, groundTruth);
+		boost::shared_ptr<LinearCostFunction> costs;
+
+		if (!optionLinearCostsFile)
+			costs = boost::make_shared<HammingCostFunction>(*groundTruth);
+		else
+			costs = boost::make_shared<FileLinearCostFunction>(optionLinearCostsFile.as<std::string>());
+
+		SoftMarginLoss      loss(*costs, constraints, features, groundTruth);
 
 		BundleMethod::callback_t callback = boost::bind(&SoftMarginLoss::valueAndGradient, &loss, _1, _2, _3);
 		BundleMethod bundleMethod(callback, features->numFeatures(), optionRegularizerWeight, optionOptimizerGap);

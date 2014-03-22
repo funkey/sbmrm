@@ -1,7 +1,8 @@
 #include <fstream>
 
-#include <util/files.h>
 #include <util/Logger.h>
+#include <util/files.h>
+#include <util/helpers.hpp>
 #include "FeaturesReader.h"
 
 logger::LogChannel featuresreaderlog("featuresreaderlog", "[FeaturesReader] ");
@@ -47,6 +48,8 @@ FeaturesReader::updateOutputs() {
 
 				LOG_ALL(featuresreaderlog) << "next number is at " << i << std::endl;
 			}
+
+			LOG_ALL(featuresreaderlog) << "adding feature vector " << f << std::endl;
 
 			if (f.size() > 0)
 				_features->addFeatureVector(f);

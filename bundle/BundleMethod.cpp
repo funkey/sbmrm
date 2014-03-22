@@ -2,9 +2,14 @@
 
 #include <util/helpers.hpp>
 #include <util/Logger.h>
+#include <util/ProgramOptions.h>
 #include "BundleMethod.h"
 
 logger::LogChannel bundlelog("bundlelog", "[BundleMethod] ");
+
+util::ProgramOption optionOutputPrecision(
+		util::_long_name        = "outputPrecision",
+		util::_description_text = "The decimal precision of printed numbers in the bundle method.");
 
 BundleMethod::BundleMethod(callback_t valueGradientCallback, unsigned int dims, double regularizerWeight, double eps) :
 	_valueGradientCallback(valueGradientCallback),
@@ -13,6 +18,15 @@ BundleMethod::BundleMethod(callback_t valueGradientCallback, unsigned int dims, 
 	_eps(eps) {
 
 	setupQp();
+
+	if (optionOutputPrecision) {
+
+		unsigned int precision = optionOutputPrecision;
+
+		LOG_DEBUG(bundlelog) << std::setprecision(precision);
+		LOG_ALL(bundlelog)   << std::setprecision(precision);
+		LOG_ERROR(bundlelog) << std::setprecision(precision);
+	}
 }
 
 std::vector<double>

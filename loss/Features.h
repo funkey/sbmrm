@@ -23,7 +23,7 @@ public:
 				BOOST_THROW_EXCEPTION(
 						SizeMismatchError() <<
 								error_message(std::string("number of features added (") +
-								boost::lexical_cast<std::string>(_features.size()) +
+								boost::lexical_cast<std::string>(f.size()) +
 								") does not match expected number (" +
 								boost::lexical_cast<std::string>(_numFeatures) + ")"));
 
