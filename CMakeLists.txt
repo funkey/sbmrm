@@ -9,15 +9,6 @@ project(structured-bmrm)
 set(VERSION_MAJOR 0)
 set(VERSION_MINOR 1)
 
-###############
-# config file #
-###############
-
-configure_file(
-  ${PROJECT_SOURCE_DIR}/cmake/config.h.in
-  ${PROJECT_BINARY_DIR}/config.h
-)
-
 #####################
 # compiler settings #
 #####################
@@ -40,3 +31,12 @@ add_subdirectory(inference)
 add_subdirectory(bundle)
 add_subdirectory(loss)
 add_subdirectory(binaries)
+
+###############
+# config file #
+###############
+
+configure_file(
+  ${PROJECT_SOURCE_DIR}/cmake/config.h.in
+  ${PROJECT_BINARY_DIR}/config.h
+)
