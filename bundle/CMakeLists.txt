@@ -1,1 +1,1 @@
-define_module(bundle LIBRARY LINKS inference pipeline boost)
+define_module(bundle OBJECT LINKS inference pipeline boost)

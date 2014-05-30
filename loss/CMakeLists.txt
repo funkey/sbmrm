@@ -1,1 +1,1 @@
-define_module(loss LIBRARY LINKS inference pipeline boost)
+define_module(loss OBJECT LINKS inference pipeline boost)
