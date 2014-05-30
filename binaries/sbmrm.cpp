@@ -98,7 +98,9 @@ int main(int optionc, char** optionv) {
 		// write output
 		std::ofstream wOutput;
 		wOutput.open(optionWeightsOutFile.as<std::string>().c_str());
-		wOutput << w << std::endl;
+		for (unsigned int i = 0; i < w.size(); i++) {
+			wOutput << w[i] << std::endl;
+		}
 		wOutput.close();
 
 	} catch (Exception& e) {
