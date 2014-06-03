@@ -4,9 +4,16 @@
 #include <util/files.h>
 #include "FileLinearCostFunction.h"
 
+#include <util/Logger.h>
+#include <vector>
+
+using namespace logger;
+
 FileLinearCostFunction::FileLinearCostFunction(std::string filename) {
 
 	std::string number = "0123456789.eE-+";
+
+	LOG_USER(out) << "Attempting to read from file: " << filename << std::endl;
 
 	std::ifstream in(filename.c_str());
 
@@ -29,16 +36,18 @@ FileLinearCostFunction::FileLinearCostFunction(std::string filename) {
 					
 					size_t beginning = line.find_first_of(number);
 					size_t end = line.find('#');
-					double numVar = boost::lexical_cast<double>(line.substr(beginning, end - beginning));
+					int numVar = boost::lexical_cast<int>(line.substr(beginning, end - beginning));
+
+					_l.resize(numVar);
 
 					// initiate vector with zeros, this enables sparse representation of the variables.
-					for ( int varNum = 0; varNum < numVar; varNum++ ) {
+					for ( std::vector<double>::size_type varNum = 0; varNum < _l.size(); varNum++ ) {
 						_l[varNum] = 0;
 					}
 
 				}
 				else {
-					std::cout << "Could not read variables since the number of variables was not specified in the first line." << std::endl;
+					LOG_USER(out) << "Could not read variables since the number of variables was not specified in the first line." << std::endl;
 					break;
 				}
 			}
@@ -62,14 +71,21 @@ FileLinearCostFunction::FileLinearCostFunction(std::string filename) {
 
 					// Read variable number
 					size_t beginningVarNum = line.find_first_of(number);
-					size_t endVarNum = line.find_first_of(" ") -1;
-					double varNum = boost::lexical_cast<double>(line.substr(beginningVarNum, endVarNum - beginningVarNum));
+					size_t endVarNum = line.find_first_of(" ");
 
+					double varNum = boost::lexical_cast<double>(line.substr(beginningVarNum, endVarNum - beginningVarNum));
+					
+					// Read variable	
 					size_t beginningValue = line.find_first_of(" ") + 1;
 					size_t endValue = line.find('#');
-					double value = boost::lexical_cast<double>(line.substr(beginningValue, endValue - beginningValue));
 
+					double value = boost::lexical_cast<double>(line.substr(beginningValue, endValue - beginningValue));
+					
 					// Save
+					if ( varNum >= _l.size() ) {
+						LOG_USER(out) << "Variable number was higher than the number of variables that were specified." << std::endl;
+						_l.resize(varNum+1);
+					}
 					_l[varNum] = value;
 				}
 			}
