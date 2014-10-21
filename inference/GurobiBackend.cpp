@@ -275,11 +275,14 @@ GurobiBackend::solve(Solution& x, double& value, std::string& msg) {
 
 		int status = _model.get(GRB_IntAttr_Status);
 
-		if (status != GRB_OPTIMAL) {
+		if (status == GRB_OPTIMAL)
+			msg = "Optimal solution found";
+		else if (status == GRB_SUBOPTIMAL)
+			msg = "WARNING: only suboptimal solution found";
+		else {
 			msg = "Optimal solution *NOT* found";
 			return false;
-		} else
-			msg = "Optimal solution found";
+		}
 
 		// extract solution
 

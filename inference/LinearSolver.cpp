@@ -103,7 +103,7 @@ LinearSolver::solve() {
 
 	if (_solver->solve(*_solution, value, message)) {
 
-		LOG_DEBUG(linearsolverlog) << "optimal solution found" << std::endl;
+		LOG_DEBUG(linearsolverlog) << message << std::endl;
 
 	} else {
 
