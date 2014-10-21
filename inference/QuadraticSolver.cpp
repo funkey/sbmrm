@@ -1,5 +1,6 @@
 #include <util/Logger.h>
 #include <util/foreach.h>
+#include <util/helpers.hpp>
 #include "QuadraticSolver.h"
 
 static logger::LogChannel quadraticsolverlog("quadraticsolverlog", "[QuadraticSolver] ");
@@ -93,12 +94,14 @@ QuadraticSolver::solve() {
 
 	if (_solver->solve(*_solution, value, message)) {
 
-		LOG_DEBUG(quadraticsolverlog) << "optimal solution found" << std::endl;
+		LOG_DEBUG(quadraticsolverlog) << message << std::endl;
 
 	} else {
 
 		LOG_ERROR(quadraticsolverlog) << "error: " << message << std::endl;
 	}
+
+	LOG_ALL(quadraticsolverlog) << "solution: " << _solution->getVector() << std::endl;
 }
 
 unsigned int
