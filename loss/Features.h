@@ -88,11 +88,55 @@ public:
 		_features.clear();
 	}
 
+	/**
+	 * Normalize all features, such that their absolute values are in the range 
+	 * [0,1].
+	 */
+	void normalize() {
+
+		_min = std::vector<double>(_numFeatures, std::numeric_limits<double>::max());
+		_max = std::vector<double>(_numFeatures, std::numeric_limits<double>::min());
+
+		// find min and max
+		foreach (const std::vector<double>& f, _features) {
+
+			for (unsigned int i = 0; i < _numFeatures; i++) {
+
+				_min[i] = std::min(_min[i], f[i]);
+				_max[i] = std::max(_max[i], f[i]);
+			}
+		}
+
+		// scale features
+		foreach (std::vector<double>& f, _features)
+			normalize(f);
+	}
+
+	/**
+	 * Normalize a single feature vector in the same way, the features of this 
+	 * set have been noramlized already (this assumes that noramlize() was 
+	 * called already). Use this to convert the learnt weight vector into the 
+	 * original feature space.
+	 */
+	inline void normalize(std::vector<double>& f) {
+
+		for (unsigned int i = 0; i < _numFeatures; i++) {
+
+			double maxAbs = std::max(std::abs(_min[i]), std::abs(_max[i]));
+
+			if (maxAbs > 0)
+				f[i] = f[i]/maxAbs;
+		}
+	}
+
 private:
 
 	unsigned int _numFeatures;
 
 	std::vector<std::vector<double> > _features;
+
+	std::vector<double> _min;
+	std::vector<double> _max;
 };
 
 #endif // SBMRM_LOSS_FEATURES_H__

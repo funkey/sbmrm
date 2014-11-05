@@ -7,8 +7,9 @@
 
 logger::LogChannel featuresreaderlog("featuresreaderlog", "[FeaturesReader] ");
 
-FeaturesReader::FeaturesReader(std::string filename) :
-	_filename(filename) {
+FeaturesReader::FeaturesReader(std::string filename, bool normalize) :
+	_filename(filename),
+	_normalize(normalize) {
 
 	registerOutput(_features, "features");
 }
@@ -54,5 +55,11 @@ FeaturesReader::updateOutputs() {
 			if (f.size() > 0)
 				_features->addFeatureVector(f);
 		}
+	}
+
+	if (_normalize) {
+
+		LOG_DEBUG(featuresreaderlog) << "normalizing features" << std::endl;
+		_features->normalize();
 	}
 }

@@ -49,6 +49,10 @@ util::ProgramOption optionRegularizerWeight(
 		util::_description_text = "The regularizer influence on the learning objective.",
 		util::_default_value    = 1.0);
 
+util::ProgramOption optionNormalizeFeatures(
+		util::_long_name        = "normalizeFeatures",
+		util::_description_text = "Normalize features, such that their absolute values is in the range [0,1].");
+
 util::ProgramOption optionOptimizerGap(
 		util::_long_name        = "optimizerGap",
 		util::_description_text = "The optimality criterion for stopping the bundle method.",
@@ -71,7 +75,7 @@ int main(int optionc, char** optionv) {
 		LOG_USER(out) << "[main] starting..." << std::endl;
 
 		pipeline::Process<ConstraintsReader> constraintsReader(optionConstraintsFile.as<std::string>());
-		pipeline::Process<FeaturesReader>    featuresReader(optionFeaturesFile.as<std::string>());
+		pipeline::Process<FeaturesReader>    featuresReader(optionFeaturesFile.as<std::string>(), optionNormalizeFeatures.as<bool>());
 		pipeline::Process<GroundTruthReader> groundTruthReader(optionLabelsFile.as<std::string>());
 
 		// get them read
@@ -86,12 +90,15 @@ int main(int optionc, char** optionv) {
 		else
 			costs = boost::make_shared<FileLinearCostFunction>(optionLinearCostsFile.as<std::string>());
 
-		SoftMarginLoss      loss(*costs, constraints, features, groundTruth);
+		SoftMarginLoss loss(*costs, constraints, features, groundTruth);
 
 		BundleMethod::callback_t callback = boost::bind(&SoftMarginLoss::valueAndGradient, &loss, _1, _2, _3);
 		BundleMethod bundleMethod(callback, features->numFeatures(), optionRegularizerWeight, optionOptimizerGap);
 
 		std::vector<double> w = bundleMethod.optimize();
+
+		if (optionNormalizeFeatures)
+			features->normalize(w);
 
 		LOG_USER(out) << "[main] optimial w is " << w << std::endl;
 
