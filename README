@@ -58,6 +58,31 @@ Compile
 
     $ make
 
+
+  MacOS
+  -----
+
+  Use MacPorts to install cmake and gcc-4.9 (other versions might work as well):
+
+  $ sudo port install cmake gcc49
+
+  The current versions of Gurobi are compiled with GCC using libstdc++, which
+  is not compatible with the default boost libraries obtained via MacPorst.
+  Therefore, you have to compile boost youself, which can be done with the
+  following command:
+
+  $ sudo port -ns upgrade --force boost configure.compiler=macports-gcc-4.9
+
+  Using CMake, you also have to change the default compiler for sbmrm by setting
+
+    CMAKE_CXX_COMPILER=/opt/local/bin/g++-mp-4.9
+
+  The default gurobi root dir is
+  Gurobi_ROOT_DIR=/Library/gurobi<version>/mac64/. In some versions of Gurobi for
+  MacOS, the lib directory only contains a libgurobi<version>.so. Move it to
+  libgurobi<version>.dylib (or create a symlink) before you run cmake, such that
+  it finds the library.
+
 Usage
 -----
 
