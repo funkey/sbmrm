@@ -1,5 +1,5 @@
-Structured Bundle Method for Risk Minimization (sbmrm)
-======================================================
+Structured Bundle Method for Risk Minimization
+==============================================
 
 Overview
 --------
@@ -33,16 +33,28 @@ Overview
 
   Currently, only the Hamming cost function is implemented for Δ(y',y).
 
+Dependencies
+------------
+
+  * Gurobi
+
+    Get the gurobi solver from http://www.gurobi.com. Academic licenses are free.
+
+  * CMake, Git, GCC, boost
+
+    On Ubuntu 14.04, get the build tools via:
+
+      sudo apt-get install cmake git build-essential libboost-dev
+
+Get Source:
+-----------
+
+  $ git clone https://github.com/funkey/sbmrm
+  $ cd sbmrm
+  $ git submodule update --init
+
 Compile
 -------
-
-  Get sbmrm:
-
-    $ git clone http://github.com/funkey/sbmrm
-
-  Get submodules:
-
-    $ git submodule update --init
 
   Configure:
 
@@ -51,8 +63,7 @@ Compile
     $ cmake ..
 
     Set Gurobi_ROOT_DIR to the Gurobi subdirectory containing the /lib and
-    /bin directories. Obtain Gurobi for free for academic purposes at
-    http://gurobi.com.
+    /bin directories.
 
   Compile:
 
