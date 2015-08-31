@@ -9,6 +9,7 @@
 #include <util/ProgramOptions.h>
 #include <util/Logger.h>
 #include <util/helpers.hpp>
+#include <util/timing.h>
 
 #include <bundle/BundleMethod.h>
 #include <loss/HammingCostFunction.h>
@@ -59,6 +60,8 @@ util::ProgramOption optionOptimizerGap(
 		util::_default_value    = 1e-5);
 
 int main(int optionc, char** optionv) {
+
+	UTIL_TIME_SCOPE("main");
 
 	try {
 
