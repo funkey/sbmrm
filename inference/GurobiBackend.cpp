@@ -283,6 +283,9 @@ GurobiBackend::solve(Solution& x, double& value, std::string& msg) {
 
 	// get current value of the objective
 	GRB_CHECK(GRBgetdblattr(_model, GRB_DBL_ATTR_OBJVAL, &value));
+	x.setValue(value);
+
+	LOG_DEBUG(gurobilog) << "optimal value: " << value << std::endl;
 
 	return true;
 }
