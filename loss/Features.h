@@ -1,6 +1,7 @@
 #ifndef SBMRM_LOSS_FEATURES_H__
 #define SBMRM_LOSS_FEATURES_H__
 
+#include <util/assert.h>
 #include <util/exceptions.h>
 
 /**
@@ -44,6 +45,9 @@ public:
 	 */
 	void getCoefficients(const std::vector<double>& w, std::vector<double>& f) const {
 
+		UTIL_ASSERT_REL(w.size(), ==, _numFeatures);
+		UTIL_ASSERT_REL(f.size(), ==, _features.size());
+
 		std::fill(f.begin(), f.end(), 0.0);
 
 		for (unsigned int i = 0; i < _features.size(); i++)
@@ -56,6 +60,9 @@ public:
 	 * such that E(y) = <w,e>.
 	 */
 	void combineFeatures(const std::vector<double>& y, std::vector<double>& e) const {
+
+		UTIL_ASSERT_REL(y.size(), ==, _features.size());
+		UTIL_ASSERT_REL(e.size(), ==, _numFeatures);
 
 		std::fill(e.begin(), e.end(), 0.0);
 
