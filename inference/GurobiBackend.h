@@ -69,6 +69,9 @@ private:
 	// internal //
 	//////////////
 
+	// add a single constraint, but don't perform a model update
+	void addConstraintWithoutUpdate(const LinearConstraint& constraint);
+
 	// dump the current problem to a file
 	void dumpProblem(std::string filename);
 

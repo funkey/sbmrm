@@ -101,7 +101,7 @@ GurobiBackend::initialize(
 	// create arrays of  variable types and infinite lower bounds
 	char* vtypes = new char[_numVariables];
 	double* lbs = new double[_numVariables];
-	for (int i = 0; i < _numVariables; i++) {
+	for (unsigned int i = 0; i < _numVariables; i++) {
 
 		VariableType type = defaultVariableType;
 		if (specialVariableTypes.count(i))
@@ -194,11 +194,13 @@ GurobiBackend::setConstraints(const LinearConstraints& constraints) {
 	if (_numConstraints > 0) {
 
 		int* constraintIndicies = new int[_numConstraints];
-		for (int i = 0; i < _numConstraints; i++)
+		for (unsigned int i = 0; i < _numConstraints; i++)
 			constraintIndicies[i] = i;
 		GRB_CHECK(GRBdelconstrs(_model, _numConstraints, constraintIndicies));
 
 		GRB_CHECK(GRBupdatemodel(_model));
+
+		delete[] constraintIndicies;
 	}
 
 	LOG_DEBUG(gurobilog) << "setting " << constraints.size() << " constraints" << std::endl;
@@ -211,7 +213,7 @@ GurobiBackend::setConstraints(const LinearConstraints& constraints) {
 			if (j % 1000 == 0)
 				LOG_ALL(gurobilog) << "" << j << " constraints set so far" << std::endl;
 
-		addConstraint(constraint);
+		addConstraintWithoutUpdate(constraint);
 
 		j++;
 	}
@@ -221,6 +223,18 @@ GurobiBackend::setConstraints(const LinearConstraints& constraints) {
 
 void
 GurobiBackend::addConstraint(const LinearConstraint& constraint) {
+
+	LOG_DEBUG(gurobilog) << "adding a constraint" << std::endl;
+
+	addConstraintWithoutUpdate(constraint);
+
+	GRB_CHECK(GRBupdatemodel(_model));
+
+	_numConstraints++;
+}
+
+void
+GurobiBackend::addConstraintWithoutUpdate(const LinearConstraint& constraint) {
 
 	int numNz = constraint.getCoefficients().size();
 
@@ -236,6 +250,14 @@ GurobiBackend::addConstraint(const LinearConstraint& constraint) {
 		vals[i] = pair.second;
 		i++;
 	}
+
+	for (int i = 0; i < numNz; i++)
+		LOG_ALL(gurobilog) << vals[i] << "*" << inds[i] << " ";
+	LOG_ALL(gurobilog) <<
+			(constraint.getRelation() == LessEqual ? "<=" :
+					(constraint.getRelation() == GreaterEqual ? ">=" :
+							"=="));
+	LOG_ALL(gurobilog) << constraint.getValue() << std::endl;
 
 	GRB_CHECK(GRBaddconstr(
 			_model,
@@ -257,8 +279,6 @@ GurobiBackend::solve(Solution& x, double& value, std::string& msg) {
 
 	if (optionGurobiDumpIlp)
 		dumpProblem(optionGurobiDumpIlp);
-
-	GRB_CHECK(GRBupdatemodel(_model));
 
 	GRB_CHECK(GRBoptimize(_model));
 
@@ -332,7 +352,7 @@ GurobiBackend::dumpProblem(std::string filename) {
 }
 
 void
-GurobiBackend::grbCheck(const char* call, const char* file, int line, int error) {
+GurobiBackend::grbCheck(const char* /*call*/, const char* file, int line, int error) {
 
 	if (error)
 		UTIL_THROW_EXCEPTION(
